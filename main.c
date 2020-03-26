@@ -3,7 +3,7 @@
     Aluno de Analise e Desenvolvimento de Sistemas
     Rede Neural Perceptron
     Data: 20/03/2020
-    Atualização: 24/03/2020
+    Atualização: 26/03/2020
 
 **/
 
@@ -11,12 +11,15 @@
 #include <stdlib.h>
 #include <math.h>
 
-void exibirMatriz(int nlin, int ncol, int *ptr_matriz);
+void exibirMatriz(int *ptr_matriz, int nlin, int ncol);
 int *alocaMatriz(int nlin, int ncol);
 float sigmoid(int *matriz, int nlin);
-float randomico(void);
 int *produtoMatriz(int *mat1, int nlin_mat1, int ncol_mat1, int *mat2, int nlin_mat2, int ncol_mat2);
 int *preencher(int *matriz, int nlin, int ncol);
+
+const int numEntrada = 3;
+const int numNeuronio = 2;
+const int numSaida= 1;
 
 float sigmoid(int *matriz, int nlin){
 
@@ -28,16 +31,7 @@ float sigmoid(int *matriz, int nlin){
         soma = soma + sig;
         printf("\nSig: %f", soma);
     }
-
     return soma;
-}
-
-float randomico(void){
-
-
-
-    return ((float)(rand()/(float)RAND_MAX))*10;
-
 }
 
 int *produtoMatriz(int *mat1, int nlin_mat1, int ncol_mat1, int *mat2, int nlin_mat2, int ncol_mat2){
@@ -81,7 +75,7 @@ int *alocaMatriz(int nlin, int ncol){
 
 }
 
-void exibirMatriz(int nlin, int ncol, int *ptr_matriz){
+void exibirMatriz(int *ptr_matriz, int nlin, int ncol){
 
     int i, j;
 
@@ -104,10 +98,9 @@ int *preencher(int *matriz, int nlin, int ncol){
 
 void treinar(){
 
-    int yd[] = {0, 1, 1, 0};    //valores desejados
-    int neuronio = 3, entrada = 2;
-    float erro = 0.001;
-    float *pesos, *v;
+    int yd[] = {0, 1, 1, 0};    //saida desejados
+    float erro = 0.001;         //erro desejado
+    float *pesos, *v;           //matrizes em forma de ponteiros
     int j;
 
     int amostra1[] = {0, 0};
@@ -118,64 +111,37 @@ void treinar(){
 
     int amostras[] = {0, 0, 1, 0, 0, 1, 1, 1};
 
-    pesos = alocaMatriz(neuronio, entrada);
-    pesos = preencher(pesos, neuronio, entrada);
+    pesos = alocaMatriz(numNeuronio, numEntrada);
+    pesos = preencher(pesos, numNeuronio, numEntrada);
 
     printf("\nMatriz de pesos: \n");
-    exibirMatriz(neuronio, entrada, pesos);
+    exibirMatriz(pesos, numNeuronio, numEntrada);
     printf("\n");
 
     int r = 2*(rand()%4);
 
     printf("\nMatriz de entrada: \nr = %d\n", r);
+    /*
     for(int i = r; i < r+2; i++){
         amostra[j] = amostras[i];
         printf("%d\n", amostra[i]);
 
-    }
+    }*/
+
     printf("\n");
 
-    v = produtoMatriz(pesos, neuronio, entrada, &amostra, entrada, 1);
-    printf("\nMatriz resultado: \n");
-    exibirMatriz(neuronio, 1, v);
-
-
-
+    //v = produtoMatriz(pesos, neuronio, entrada, &amostra, entrada, 1);
+    //printf("\nMatriz resultado: \n");
+    //exibirMatriz(numNeuronio, 1, v);
 
 }
 
 int main(){
 
-    srand((unsigned int)time(NULL));
-
-    float yo;
-    int num_entradas = 2, num_neuronios = 3, num_saida = 1;
-    int *weigth, *x_input, *u;
+    srand(time(NULL));
 
     treinar();
-    exit(1);
 
-    weigth = alocaMatriz(num_neuronios, num_entradas);
-    x_input = alocaMatriz(num_entradas, 1);
+    return 1;
 
-    weigth = preencher(weigth, num_neuronios, num_entradas);
-
-
-    exibirMatriz(num_neuronios, num_entradas, weigth);
-    printf("\n");
-    exibirMatriz(num_entradas, 1, x_input);
-    printf("\n");
-
-    u = produtoMatriz(weigth, num_neuronios, num_entradas, x_input, num_entradas, 1);
-    exibirMatriz(num_neuronios, 1, u);
-
-    printf("\n");
-
-    yo = sigmoid(u, num_neuronios);
-    printf("\nSaida: %f\n", yo);
-
-    free(weigth);
-    free(x_input);
-
-    return 0;
 }
