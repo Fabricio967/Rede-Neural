@@ -3,7 +3,9 @@
     Aluno de Analise e Desenvolvimento de Sistemas
     Rede Neural Perceptron
     Data: 20/03/2020
-    Atualização: 24/03/2020
+    Atualização: 26/03/2020
+
+    testando Git
 
 **/
 
