@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1585101792 source:f:\programação\rede neural\main.c
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+
