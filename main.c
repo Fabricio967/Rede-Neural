@@ -100,7 +100,6 @@ void treinar(){
 
     int yd[] = {0, 1, 1, 0};    //saida desejados
     float erro = 0.001;         //erro desejado
-    float *pesos, *v;           //matrizes em forma de ponteiros
     int j;
 
     int amostra1[] = {0, 0};
@@ -111,17 +110,37 @@ void treinar(){
 
     int amostras[] = {0, 0, 1, 0, 0, 1, 1, 1};
 
-    pesos = alocaMatriz(numNeuronio, numEntrada);
-    pesos = preencher(pesos, numNeuronio, numEntrada);
+    //Entrada -> Camada Oculta
+    float *camadaOculta = preencher(alocaMatriz(numNeuronio, numEntrada), numNeuronio, numEntrada);
+    exibirMatriz(camadaOculta, numNeuronio, numEntrada);
 
+    int *entradas = alocaMatriz(numEntrada, 1);
+
+    for(int i = 0; i < numEntrada; i++){
+        if(i % 2 == 0){
+            *(entradas+i) = 1;
+        }else{
+            *(entradas+i) = 0;
+        }
+    }
+    printf("\nMatriz de entrada:\n");
+    exibirMatriz(entradas, numEntrada, 1);
+
+
+
+    //Camada de Saida
+    float *camadaSaida = alocaMatriz(numSaida, numNeuronio);
     printf("\nMatriz de pesos: \n");
-    exibirMatriz(pesos, numNeuronio, numEntrada);
+    exibirMatriz(camadaSaida, numSaida, numNeuronio);
     printf("\n");
 
+
+
+    /*
     int r = 2*(rand()%4);
 
     printf("\nMatriz de entrada: \nr = %d\n", r);
-    /*
+
     for(int i = r; i < r+2; i++){
         amostra[j] = amostras[i];
         printf("%d\n", amostra[i]);
