@@ -96,6 +96,22 @@ int *preencher(int *matriz, int nlin, int ncol){
     return matriz;
 }
 
+int somaMatrizes(int *mat1, int nlin_mat1, int ncol_mat1, int *mat2, int nlin_mat2, int ncol_mat2){
+
+    int *soma_mat, i, j;
+
+    soma_mat = alocaMatriz(nlin_mat1, ncol_mat2);
+
+    if(nlin_mat1 == nlin_mat2 && ncol_mat1 == ncol_mat2){
+        for(i = 0; i < (nlin_mat1*ncol_mat1); i++){
+            *(soma_mat+i) = ( *(mat1+i) + *(mat2+i) );
+            //printf("\nveredito\n");
+        }
+    }
+    return soma_mat;
+
+}
+
 void treinar(){
 
     int yd[] = {0, 1, 1, 0};    //saida desejados
@@ -112,8 +128,6 @@ void treinar(){
 
     //Entrada -> Camada Oculta
     float *camadaOculta = preencher(alocaMatriz(numNeuronio, numEntrada), numNeuronio, numEntrada);
-    exibirMatriz(camadaOculta, numNeuronio, numEntrada);
-
     int *entradas = alocaMatriz(numEntrada, 1);
 
     for(int i = 0; i < numEntrada; i++){
@@ -123,14 +137,32 @@ void treinar(){
             *(entradas+i) = 0;
         }
     }
+
+    printf("\nMatriz de pesos:\n");
+    exibirMatriz(camadaOculta, numNeuronio, numEntrada);
+
     printf("\nMatriz de entrada:\n");
     exibirMatriz(entradas, numEntrada, 1);
 
+    float *u = produtoMatriz(camadaOculta, numNeuronio, numEntrada, entradas, numEntrada, 1);
+    float *bias = preencher(alocaMatriz(numNeuronio, 1), numNeuronio, 1);
 
+    printf("\nMatriz bias:\n");
+    exibirMatriz(bias, numNeuronio, 1);
 
-    //Camada de Saida
+    printf("\nMatriz u:\n");
+    exibirMatriz(u, numNeuronio, 1);
+
+    u = somaMatrizes(u, numNeuronio, 1, bias, numNeuronio, 1);
+
+    printf("\nMatriz u:\n");
+    exibirMatriz(u, numNeuronio, 1);
+
+    //u = sigmoid();
+
+    //Camada Oculta -> Camada de Saida
     float *camadaSaida = alocaMatriz(numSaida, numNeuronio);
-    printf("\nMatriz de pesos: \n");
+    printf("\nMatriz de : \n");
     exibirMatriz(camadaSaida, numSaida, numNeuronio);
     printf("\n");
 
