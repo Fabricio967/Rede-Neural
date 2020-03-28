@@ -13,7 +13,7 @@
 
 void exibirMatriz(int *ptr_matriz, int nlin, int ncol);
 int *alocaMatriz(int nlin, int ncol);
-float sigmoid(int *matriz, int nlin);
+float *sigmoid(int *matriz, int nlin);
 int *produtoMatriz(int *mat1, int nlin_mat1, int ncol_mat1, int *mat2, int nlin_mat2, int ncol_mat2);
 int *preencher(int *matriz, int nlin, int ncol);
 
@@ -21,17 +21,17 @@ const int numEntrada = 3;
 const int numNeuronio = 2;
 const int numSaida= 1;
 
-float sigmoid(int *matriz, int nlin){
+float *sigmoid(int *matriz, int nlin){
 
-    int i;
-    float soma = 0, sig;
+    float *sig = alocaMatriz(nlin, 1);
+    float soma;
 
-    for(i = 0; i < nlin; i++){
-        sig = (1/(1+exp(- *(matriz + i) )));
-        soma = soma + sig;
-        printf("\nSig: %f", soma);
+    for(int i = 0; i < nlin; i++){
+        soma = (1/(1+exp(- *(matriz + i) )));
+        *(sig+i) = soma;
+        printf("\nSigmoid:\t%f\n", *(sig+i));
     }
-    return soma;
+    return sig;
 }
 
 int *produtoMatriz(int *mat1, int nlin_mat1, int ncol_mat1, int *mat2, int nlin_mat2, int ncol_mat2){
@@ -154,11 +154,22 @@ void treinar(){
     exibirMatriz(u, numNeuronio, 1);
 
     u = somaMatrizes(u, numNeuronio, 1, bias, numNeuronio, 1);
+    //u = sigmoid(u, numNeuronio);
 
     printf("\nMatriz u:\n");
     exibirMatriz(u, numNeuronio, 1);
 
-    //u = sigmoid();
+    float *y = sigmoid(u, numNeuronio);
+
+    printf("\nY final\n");
+    //exibirMatriz(y, numNeuronio, 1);
+
+    for(int i = 0; i < numNeuronio; i++){
+        for(j = 0; j < 1; j++){
+            printf("%f\t", *(y + (1 * i) + j));
+        }
+        printf("\n");
+    }
 
     //Camada Oculta -> Camada de Saida
     float *camadaSaida = alocaMatriz(numSaida, numNeuronio);
@@ -184,6 +195,10 @@ void treinar(){
     //v = produtoMatriz(pesos, neuronio, entrada, &amostra, entrada, 1);
     //printf("\nMatriz resultado: \n");
     //exibirMatriz(numNeuronio, 1, v);
+    free(camadaOculta);
+    free(entradas);
+    free(u);
+    free(y);
 
 }
 
