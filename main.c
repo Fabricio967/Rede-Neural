@@ -11,17 +11,19 @@
 #include <stdlib.h>
 #include <math.h>
 
-void exibirMatriz(int *ptr_matriz, int nlin, int ncol);
-int *alocaMatriz(int nlin, int ncol);
-float *sigmoid(int *matriz, int nlin);
-int *produtoMatriz(int *mat1, int nlin_mat1, int ncol_mat1, int *mat2, int nlin_mat2, int ncol_mat2);
-int *preencher(int *matriz, int nlin, int ncol);
+void exibirMatriz(float *ptr_matriz, int nlin, int ncol);
+float *alocaMatriz(int nlin, int ncol);
+float *sigmoid(float *matriz, int nlin);
+float *produtoMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2);
+float *preencher(float *matriz, int nlin, int ncol);
+float *somaMatrizes(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2);
+void treinar();
 
 const int numEntrada = 3;
 const int numNeuronio = 2;
 const int numSaida= 1;
 
-float *sigmoid(int *matriz, int nlin){
+float *sigmoid(float *matriz, int nlin){
 
     float *sig = alocaMatriz(nlin, 1);
     float soma;
@@ -34,9 +36,10 @@ float *sigmoid(int *matriz, int nlin){
     return sig;
 }
 
-int *produtoMatriz(int *mat1, int nlin_mat1, int ncol_mat1, int *mat2, int nlin_mat2, int ncol_mat2){
+float *produtoMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2){
 
-    int *prod_mat, i, j, soma = 0;
+    int i, j, soma = 0;
+    float *prod_mat;
 
     prod_mat = alocaMatriz(nlin_mat1, ncol_mat2);
 
@@ -53,15 +56,16 @@ int *produtoMatriz(int *mat1, int nlin_mat1, int ncol_mat1, int *mat2, int nlin_
     return prod_mat;
 }
 
-int *alocaMatriz(int nlin, int ncol){
+float *alocaMatriz(int nlin, int ncol){
 
-    int i, *ponteiro, *q;
+    int i;
+    float *ponteiro, *q;
 
     if(nlin < 1 || ncol < 1)
         printf("\n2. ERRO: Parametro de tamanho invalido.\n");
 
     for(i = 0; i < (nlin*ncol); i++)
-        ponteiro = (int)malloc(nlin*ncol*sizeof(int));
+        ponteiro = (float*)malloc(nlin*ncol*sizeof(float));
 
     if(ponteiro == NULL)
         printf("\n2.1. ERRO: Memoria Insuficiente!");
@@ -75,19 +79,19 @@ int *alocaMatriz(int nlin, int ncol){
 
 }
 
-void exibirMatriz(int *ptr_matriz, int nlin, int ncol){
+void exibirMatriz(float *ptr_matriz, int nlin, int ncol){
 
     int i, j;
 
     for(i = 0; i < nlin; i++){
         for(j = 0; j < ncol; j++){
-            printf("%d\t", *(ptr_matriz + (ncol * i) + j));
+            printf("%.2f\t", *(ptr_matriz + (ncol * i) + j));
         }
         printf("\n");
     }
 }
 
-int *preencher(int *matriz, int nlin, int ncol){
+float *preencher(float *matriz, int nlin, int ncol){
 
     for(int i = 0; i < (nlin*ncol); i++){
         *(matriz+i) = rand()%10;
@@ -96,9 +100,10 @@ int *preencher(int *matriz, int nlin, int ncol){
     return matriz;
 }
 
-int somaMatrizes(int *mat1, int nlin_mat1, int ncol_mat1, int *mat2, int nlin_mat2, int ncol_mat2){
+float *somaMatrizes(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2){
 
-    int *soma_mat, i, j;
+    int i;
+    float *soma_mat;
 
     soma_mat = alocaMatriz(nlin_mat1, ncol_mat2);
 
@@ -109,7 +114,6 @@ int somaMatrizes(int *mat1, int nlin_mat1, int ncol_mat1, int *mat2, int nlin_ma
         }
     }
     return soma_mat;
-
 }
 
 void treinar(){
@@ -128,11 +132,11 @@ void treinar(){
 
     //Entrada -> Camada Oculta
     float *camadaOculta = preencher(alocaMatriz(numNeuronio, numEntrada), numNeuronio, numEntrada);
-    int *entradas = alocaMatriz(numEntrada, 1);
+    float *entradas = alocaMatriz(numEntrada, 1);
 
     for(int i = 0; i < numEntrada; i++){
         if(i % 2 == 0){
-            *(entradas+i) = 1;
+            *(entradas+i) = 1.0f;
         }else{
             *(entradas+i) = 0;
         }
