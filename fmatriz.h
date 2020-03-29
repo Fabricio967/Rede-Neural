@@ -11,6 +11,8 @@ float *subtraiMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int
 void treinar();
 float *d_sigmoid(float *matriz, int nlin);
 float *hadamard(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2);
+float *produtoEscalar(float *matriz, int nlin, int ncol, float escalar);
+float *transporMatriz(float *matriz, int nlin, int ncol);
 
 float *sigmoid(float *matriz, int nlin){
 
@@ -40,7 +42,6 @@ float *produtoMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int
                 soma = soma + (*(mat1 + (i * ncol_mat1) + j) * *(mat2 + j));
             }
             *(prod_mat+i) = soma;
-            //printf("\n---------------------------%f", *(prod_mat+i));
         }
     }
     return prod_mat;
@@ -108,14 +109,13 @@ float *somaMatrizes(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int 
 
 float *hadamard(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2){
 
-    int i, j;
-    float *had_mat, soma;
+    float *had_mat;
 
     had_mat = alocaMatriz(nlin_mat1, ncol_mat2);
 
     if(nlin_mat1 == nlin_mat2 && ncol_mat1 == ncol_mat2){
 
-        for(i = 0; i < (nlin_mat1*ncol_mat1); i++){
+        for(int i = 0; i < (nlin_mat1*ncol_mat1); i++){
                 *(had_mat+i) = (*(mat1 + i)  * *(mat2 + i));
         }
     }
@@ -151,5 +151,30 @@ float *subtraiMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int
 
 }
 
+float *produtoEscalar(float *matriz, int nlin, int ncol, float escalar){
+
+    float *prod_escalar;
+
+    prod_escalar = alocaMatriz(nlin, ncol);
+
+    for(int i = 0; i < (nlin*ncol); i++){
+        *(prod_escalar + i) = escalar * *(matriz + i);
+
+    }
+    return prod_escalar;
+
+}
+
+float *transporMatriz(float *matriz, int nlin, int ncol){
+
+    float *matrizT = alocaMatriz(ncol, nlin);
+
+    for(int i = 0; i < ncol; i++){
+        for(int j = 0; j < nlin; j++){
+            *(matrizT + (i*nlin) + j) = *(matriz + (j*ncol) + i);
+        }
+    }
+    return matrizT;
+}
 
 #endif // FMATRIZ_H_INCLUDED

@@ -23,7 +23,7 @@ const float Erro_desejado = 0.01;
 void treinar(){
 
     //int yd[] = {0, 1, 1, 0};    //saida desejados
-    int j;
+    //int j;
     float *y_d_saida = alocaMatriz(numSaida, 1);
     float *y_d_oculta = alocaMatriz(numNeuronio, 1);
     float *erro_o_saida = alocaMatriz(numSaida, 1);
@@ -47,7 +47,7 @@ void treinar(){
 
     for(int i = 0; i < numEntrada; i++){
         if(i % 2 == 0){
-            *(entradas+i) = 0.57;
+            *(entradas+i) = 1;
         }else{
             *(entradas+i) = 0;
         }
@@ -55,6 +55,8 @@ void treinar(){
 
     printf("\nMatriz de pesos:\n");
     exibirMatriz(pesosOculta, numNeuronio, numEntrada);
+    printf("\naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");
+    exibirMatriz(transporMatriz(pesosOculta, numNeuronio, numEntrada), numEntrada, numNeuronio);
 
     printf("\nMatriz de entrada:\n");
     exibirMatriz(entradas, numEntrada, 1);
@@ -111,18 +113,41 @@ void treinar(){
     //Saida -> Oculta
 
     erro_o_saida = subtraiMatriz(y_d_saida, numSaida, 1, ySaida, numSaida, 1);
-    printf("\nErro na saida");
+    printf("\nErro na saida\n");
     exibirMatriz(erro_o_saida, numSaida, 1);
 
     if(*(erro_o_saida) > Erro_desejado){
         printf("\n\t\ttrue\n");
     }
+    //float *camadaSaida_T = transporMatriz(camadaSaida, numNeuronio, 1);
+    float *gradiente = produtoMatriz(camadaSaida, numNeuronio, 1, erro_o_saida, numSaida, 1);
+    printf("\ncamada gradiente\n");
+    exibirMatriz(gradiente, numNeuronio, 1);
+    printf("\n");
+    gradiente = produtoEscalar(gradiente, numNeuronio, 1, taxa_aprendizado);
+    printf("\n");
+    exibirMatriz(gradiente, numNeuronio, 1);
 
+
+    //float *gradiente = produtoEscalar(gradiente, numSaida, 1, taxa_aprendizado);
+    //float *
+
+
+    /*
     float *d_saida = d_sigmoid(ySaida, numSaida);
     exibirMatriz(d_saida, numSaida, 1);
+    printf("\n");
+
 
     float *delta_s_o = hadamard(d_saida, numSaida, 1, erro_o_saida, numSaida, 1);
-    //delta_s_o =
+    delta_s_o = produtoEscalar(delta_s_o, numSaida, 1, taxa_aprendizado);
+    float *ySaida_T = transporMatriz(camadaSaida, numNeuronio, 1);
+    delta_s_o = produtoMatriz(delta_s_o, numSaida, 1, ySaida_T, 1, numNeuronio);
+    */
+
+
+    //exibirMatriz(transporMatriz(yOculta, numNeuronio, 1), 1, numNeuronio);
+
 
     free(pesosOculta);
     free(biasOculta);
