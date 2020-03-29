@@ -4,7 +4,6 @@
     Rede Neural Perceptron
     Data: 20/03/2020
     Atualização: 28/03/2020
-
 **/
 
 #include <stdio.h>
@@ -17,11 +16,16 @@ float *sigmoid(float *matriz, int nlin);
 float *produtoMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2);
 float *preencher(float *matriz, int nlin, int ncol);
 float *somaMatrizes(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2);
+float *subtraiMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2);
 void treinar();
+float *d_sigmoid(float *matriz, int nlin);
+
 
 const int numEntrada = 3;
 const int numNeuronio = 2;
 const int numSaida= 1;
+const float taxa_aprendizado = 0.1;
+const float Erro_desejado = 0.01;
 
 float *sigmoid(float *matriz, int nlin){
 
@@ -117,11 +121,54 @@ float *somaMatrizes(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int 
     return soma_mat;
 }
 
+float *d_sigmoid(float *matriz, int nlin){
+
+    float *d_sig = alocaMatriz(nlin, 1);
+    //float soma;
+
+    for(int i = 0; i < nlin; i++){
+        *(d_sig) = *(matriz + i) * (1 - *(matriz + i) );
+        //printf("\nSigmoid:\t%f\n", *(sig+i));
+    }
+    return d_sig;
+
+}
+
+float *subtraiMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2){
+
+    float *sub_mat;
+
+    sub_mat = alocaMatriz(nlin_mat1, ncol_mat2);
+
+    if(nlin_mat1 == nlin_mat2 && ncol_mat1 == ncol_mat2){
+        for(int i = 0; i < (nlin_mat1*ncol_mat1); i++){
+            *(sub_mat+i) = ( *(mat1+i) - *(mat2+i) );
+            //printf("\nveredito\n");
+        }
+    }
+    return sub_mat;
+
+}
+
 void treinar(){
 
-    int yd[] = {0, 1, 1, 0};    //saida desejados
-    float erro = 0.001;         //erro desejado
+    //int yd[] = {0, 1, 1, 0};    //saida desejados
     int j;
+    float *y_d_saida = alocaMatriz(numSaida, 1);
+    float *y_d_oculta = alocaMatriz(numNeuronio, 1);
+    float *erro_o_saida = alocaMatriz(numSaida, 1);
+    //float erro_o_oculta =
+
+    for(int i = 0; i < numSaida; i++){
+        *(y_d_saida+i) = 1;
+        printf("\n\t\t\t\tyd_saida = %f", *(y_d_saida+i));
+    }
+
+    for(int i = 0; i < numNeuronio; i++){
+        *(y_d_oculta+i) = 1;
+        printf("\n\t\t\t\tyd_oculta = %f", *(y_d_oculta+i));
+    }
+
 
     int amostra1[] = {0, 0};
     int amostra2[] = {0, 1};
@@ -130,6 +177,8 @@ void treinar(){
     int amostra;
 
     int amostras[] = {0, 0, 1, 0, 0, 1, 1, 1};
+
+    //FEEDFORWARD
 
     //Entrada -> Camada Oculta
     float *pesosOculta = preencher(alocaMatriz(numNeuronio, numEntrada), numNeuronio, numEntrada);
@@ -148,7 +197,6 @@ void treinar(){
 
     printf("\nMatriz de entrada:\n");
     exibirMatriz(entradas, numEntrada, 1);
-
 
     float *uOculta = produtoMatriz(pesosOculta, numNeuronio, numEntrada, entradas, numEntrada, 1);
     float *biasOculta = preencher(alocaMatriz(numNeuronio, 1), numNeuronio, 1);
@@ -196,6 +244,22 @@ void treinar(){
     exibirMatriz(ySaida, numSaida, 1);
 
     printf("\n");
+
+    //BACKPROPAGATION
+
+    //Saida -> Oculta
+
+    erro_o_saida = subtraiMatriz(y_d_saida, numSaida, 1, ySaida, numSaida, 1);
+    printf("\nErro na saida");
+    exibirMatriz(erro_o_saida, numSaida, 1);
+
+    if(*(erro_o_saida) > Erro_desejado){
+        printf("\n\t\ttrue\n");
+    }
+
+    float *d_sig = d_sigmoid(erro_o_saida, numSaida);
+    exibirMatriz(d_sig, numSaida, 1);
+
 
     free(pesosOculta);
     free(biasOculta);
