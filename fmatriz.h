@@ -8,9 +8,6 @@ float *produtoMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int
 float *preencher(float *matriz, int nlin, int ncol);
 float *somaMatrizes(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2);
 float *subtraiMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2);
-void treinar();
-float *d_sigmoid(float *matriz, int nlin);
-float *hadamard(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2);
 float *produtoEscalar(float *matriz, int nlin, int ncol, float escalar);
 float *transporMatriz(float *matriz, int nlin, int ncol);
 
@@ -93,7 +90,8 @@ void exibirMatriz(float *ptr_matriz, int nlin, int ncol){
 float *preencher(float *matriz, int nlin, int ncol){
 
     for(int i = 0; i < (nlin*ncol); i++){
-        *(matriz+i) = rand()%10 - 5;
+        //*(matriz+i) = rand()%10 - 5;
+        *(matriz+i) = 0;
     }
 
     return matriz;
@@ -113,34 +111,6 @@ float *somaMatrizes(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int 
         }
     }
     return soma_mat;
-}
-
-float *hadamard(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2){
-
-    float *had_mat;
-
-    had_mat = alocaMatriz(nlin_mat1, ncol_mat2);
-
-    if(nlin_mat1 == nlin_mat2 && ncol_mat1 == ncol_mat2){
-
-        for(int i = 0; i < (nlin_mat1*ncol_mat1); i++){
-                *(had_mat+i) = (*(mat1 + i)  * *(mat2 + i));
-        }
-    }
-    return had_mat;
-}
-
-float *d_sigmoid(float *matriz, int nlin){
-
-    float *d_sig = alocaMatriz(nlin, 1);
-    //float soma;
-
-    for(int i = 0; i < nlin; i++){
-        *(d_sig) = *(matriz + i) * (1 - *(matriz + i) );
-        //printf("\nSigmoid:\t%f\n", *(sig+i));
-    }
-    return d_sig;
-
 }
 
 float *subtraiMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2){

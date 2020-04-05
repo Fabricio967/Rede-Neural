@@ -12,82 +12,99 @@
 
 #include "fmatriz.h"
 
-
-const int numEntrada = 3;
+const int numEntrada = 2;
 const int numNeuronioOculta = 2;
 const int numNeuronioSaida= 1;
 const float taxaDeAprendizado = 0.1;
 const float erroDesejado = 0.01;
-
+const int numeroAmostras = 4;
 
 void treinar(){
 
     float *yDesejadoSaida = alocaMatriz(numNeuronioSaida, 1);
-    float *yDesejadoOculta = alocaMatriz(numNeuronioOculta, 1);
+    float *matrizDeEntrada;
+    float *pesosOculta, *biasOculta, *zOculta, *yOculta;
+    float *pesosSaida, *biasSaida, *zSaida, *ySaida;
+    float *erroSaida, *gradienteSaida;
+    float *erroOculta, *gradienteOculta;
+
+    int i, j;
 
     for(int i = 0; i < numNeuronioSaida; i++){
         *(yDesejadoSaida+i) = 1;
     }
 
-    for(int i = 0; i < numNeuronioOculta; i++){
+    /*for(int i = 0; i < numNeuronioOculta; i++){
         *(yDesejadoOculta+i) = 1;
-    }
+    }*/
+    float amostras[4][3] = { {0, 0, 0}, {0, 1, 1}, {1, 0, 1}, {1, 1, 0} };
+
+    matrizDeEntrada = alocaMatriz(numEntrada, 1);
+
+    do{
+
+        for(i = 0; i < numeroAmostras; i++){
+
+            for(j = 0; j < (numEntrada+1); j++){
+
+                if(j == numEntrada){
+                    *(yDesejadoSaida+i) = amostras[i][j];
+                }else{
+                    *(matrizDeEntrada+j) = amostras[i][j];
+                }
+            printf("\n");
+            exibirMatriz(matrizDeEntrada, numEntrada, 1);
+            printf("\n=");
+            exibirMatriz(yDesejadoSaida, numNeuronioSaida, 1);
+            }
+        }
+
+    }while(*erroSaida > erroDesejado);
+
+
+    printf("\n");
+    exibirMatriz(matrizDeEntrada, numEntrada, 1);
+    printf("\n");
+    exibirMatriz(yDesejadoSaida, numNeuronioSaida, 1);
 
     //FEEDFORWARD
 
     //Entrada -> Camada Oculta
-    float *pesosOculta = preencher(alocaMatriz(numNeuronioOculta, numEntrada), numNeuronioOculta, numEntrada);
-    float *matrizDeEntrada = alocaMatriz(numEntrada, 1);
-
-    for(int i = 0; i < numEntrada; i++){
-        if(i % 2 == 0){
-            *(matrizDeEntrada+i) = 1;
-        }else{
-            *(matrizDeEntrada+i) = 1;
-        }
-    }
-
-    float *zOculta = produtoMatriz(pesosOculta, numNeuronioOculta, numEntrada, matrizDeEntrada, numEntrada, 1);
-    float *biasOculta = preencher(alocaMatriz(numNeuronioOculta, 1), numNeuronioOculta, 1);
-
-    //system("pause");
-
+    pesosOculta = preencher(alocaMatriz(numNeuronioOculta, numEntrada), numNeuronioOculta, numEntrada);
+    zOculta = produtoMatriz(pesosOculta, numNeuronioOculta, numEntrada, matrizDeEntrada, numEntrada, 1);
+    biasOculta = preencher(alocaMatriz(numNeuronioOculta, 1), numNeuronioOculta, 1);
     zOculta = somaMatrizes(zOculta, numNeuronioOculta, 1, biasOculta, numNeuronioOculta, 1);
-
-    float *yOculta = sigmoid(zOculta, numNeuronioOculta);
+    yOculta = sigmoid(zOculta, numNeuronioOculta);
 
     //Camada Oculta -> Camada de Saida
-
-    float *pesosSaida = preencher(alocaMatriz(numNeuronioSaida, numNeuronioOculta), numNeuronioSaida, numNeuronioOculta);
-    float *biasSaida = preencher(alocaMatriz(numNeuronioSaida, numNeuronioSaida), numNeuronioSaida, numNeuronioSaida);
-    float *zSaida = produtoMatriz(pesosSaida, numNeuronioSaida, numNeuronioOculta, yOculta, numNeuronioOculta, 1);
-
+    pesosSaida = preencher(alocaMatriz(numNeuronioSaida, numNeuronioOculta), numNeuronioSaida, numNeuronioOculta);
+    biasSaida = preencher(alocaMatriz(numNeuronioSaida, numNeuronioSaida), numNeuronioSaida, numNeuronioSaida);
+    zSaida = produtoMatriz(pesosSaida, numNeuronioSaida, numNeuronioOculta, yOculta, numNeuronioOculta, 1);
     zSaida = somaMatrizes(zSaida, numNeuronioSaida, 1, biasSaida, numNeuronioSaida, numNeuronioSaida);
-    float *ySaida = sigmoid(zSaida, numNeuronioSaida);
+    ySaida = sigmoid(zSaida, numNeuronioSaida);
 
     //BACKPROPAGATION
 
     //Saida -> Oculta
-
-    float *erroSaida = subtraiMatriz(yDesejadoSaida, numNeuronioSaida, 1, ySaida, numNeuronioSaida, 1);
+    erroSaida = subtraiMatriz(yDesejadoSaida, numNeuronioSaida, 1, ySaida, numNeuronioSaida, 1);
 
 /*
     if(*(erroSaida) > erroDesejado){
         printf("\n\t\ttrue\n");
     }*/
 
-    float *gradienteSaida = produtoMatriz(yOculta, numNeuronioOculta, 1, erroSaida, numNeuronioSaida, 1);
+    gradienteSaida = produtoMatriz(yOculta, numNeuronioOculta, 1, erroSaida, numNeuronioSaida, 1);
     gradienteSaida = produtoEscalar(gradienteSaida, numNeuronioOculta, 1, taxaDeAprendizado);
     gradienteSaida = transporMatriz(gradienteSaida, numNeuronioOculta, 1);
     pesosSaida = somaMatrizes(pesosSaida, numNeuronioSaida, numNeuronioOculta, gradienteSaida, 1, numNeuronioOculta);
 
     //Oculta -> Entrada
 
-    float *erroOculta = produtoMatriz(matrizDeEntrada, numEntrada, 1, pesosSaida, 1, numNeuronioOculta);
+    erroOculta = produtoMatriz(matrizDeEntrada, numEntrada, 1, pesosSaida, 1, numNeuronioOculta);
 
     //system("pause");
 
-    float *gradienteOculta = transporMatriz(erroOculta, numEntrada, numNeuronioOculta);
+    gradienteOculta = transporMatriz(erroOculta, numEntrada, numNeuronioOculta);
     gradienteOculta = produtoEscalar(gradienteOculta, numNeuronioOculta, numEntrada, *erroSaida);
     gradienteOculta = produtoEscalar(gradienteOculta, numNeuronioOculta, numEntrada, taxaDeAprendizado);
     pesosOculta = somaMatrizes(pesosOculta, numNeuronioOculta, numEntrada, gradienteOculta, numNeuronioOculta, numEntrada);
