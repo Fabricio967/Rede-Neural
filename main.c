@@ -18,6 +18,7 @@ const int numNeuronioSaida= 1;
 const float taxaDeAprendizado = 0.1;
 const float erroDesejado = 0.01;
 const int numeroAmostras = 4;
+const int epocas = 1000;
 
 void treinar(){
 
@@ -27,12 +28,9 @@ void treinar(){
     float *pesosSaida, *biasSaida, *zSaida, *ySaida;
     float *erroSaida, *gradienteSaida;
     float *erroOculta, *gradienteOculta;
+    int a = 4, b = 3;
 
     int i, j;
-
-    for(int i = 0; i < numNeuronioSaida; i++){
-        *(yDesejadoSaida+i) = 1;
-    }
 
     /*for(int i = 0; i < numNeuronioOculta; i++){
         *(yDesejadoOculta+i) = 1;
@@ -41,25 +39,26 @@ void treinar(){
 
     matrizDeEntrada = alocaMatriz(numEntrada, 1);
 
-    do{
+    for(i = 0; i < numeroAmostras; i++){
 
-        for(i = 0; i < numeroAmostras; i++){
-
-            for(j = 0; j < (numEntrada+1); j++){
-
-                if(j == numEntrada){
-                    *(yDesejadoSaida+i) = amostras[i][j];
-                }else{
-                    *(matrizDeEntrada+j) = amostras[i][j];
-                }
-            printf("\n");
-            exibirMatriz(matrizDeEntrada, numEntrada, 1);
-            printf("\n=");
-            exibirMatriz(yDesejadoSaida, numNeuronioSaida, 1);
+        for(j = 0; j < (numEntrada+1); j++){
+            if(j == numEntrada){
+                *(yDesejadoSaida) = amostras[i][j];
+            }else{
+                *(matrizDeEntrada+j) = amostras[i][j];
             }
         }
+        printf("\n");
+        exibirMatriz(matrizDeEntrada, numEntrada, 1);
+        printf("\n=");
+        exibirMatriz(yDesejadoSaida, numNeuronioSaida, 1);
 
-    }while(*erroSaida > erroDesejado);
+
+    }
+
+    /*do{
+    system("pause");
+    }while(*erroSaida > erroDesejado);*/
 
 
     printf("\n");
@@ -87,12 +86,6 @@ void treinar(){
 
     //Saida -> Oculta
     erroSaida = subtraiMatriz(yDesejadoSaida, numNeuronioSaida, 1, ySaida, numNeuronioSaida, 1);
-
-/*
-    if(*(erroSaida) > erroDesejado){
-        printf("\n\t\ttrue\n");
-    }*/
-
     gradienteSaida = produtoMatriz(yOculta, numNeuronioOculta, 1, erroSaida, numNeuronioSaida, 1);
     gradienteSaida = produtoEscalar(gradienteSaida, numNeuronioOculta, 1, taxaDeAprendizado);
     gradienteSaida = transporMatriz(gradienteSaida, numNeuronioOculta, 1);
@@ -101,13 +94,12 @@ void treinar(){
     //Oculta -> Entrada
 
     erroOculta = produtoMatriz(matrizDeEntrada, numEntrada, 1, pesosSaida, 1, numNeuronioOculta);
-
-    //system("pause");
-
     gradienteOculta = transporMatriz(erroOculta, numEntrada, numNeuronioOculta);
     gradienteOculta = produtoEscalar(gradienteOculta, numNeuronioOculta, numEntrada, *erroSaida);
     gradienteOculta = produtoEscalar(gradienteOculta, numNeuronioOculta, numEntrada, taxaDeAprendizado);
     pesosOculta = somaMatrizes(pesosOculta, numNeuronioOculta, numEntrada, gradienteOculta, numNeuronioOculta, numEntrada);
+
+
 
     free(pesosOculta);
     free(biasOculta);
