@@ -67,7 +67,7 @@ float *produtoMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int
 
                     soma = soma + (*(mat1+(i*ncol_mat1)+k) * (*(mat2+(k * ncol_mat2)+j)));
                     //printf("\n\n ============= controle ================= \n");
-                    printf("\ni = %d | j = %d | k = %d | m1 = %d | m2 = %d | soma = %f | C = %d\n", i, j, k, ((i * ncol_mat1) + k), ((k * ncol_mat2) + j), soma, (i * ncol_mat2) + j);
+                    //printf("\ni = %d | j = %d | k = %d | m1 = %d | m2 = %d | soma = %f | C = %d\n", i, j, k, ((i * ncol_mat1) + k), ((k * ncol_mat2) + j), soma, (i * ncol_mat2) + j);
                 }
 
                 *(prod_mat + (i * ncol_mat2) + j) = soma;
