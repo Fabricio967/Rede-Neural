@@ -1,8 +1,8 @@
 #ifndef FMATRIZ_H_INCLUDED
 #define FMATRIZ_H_INCLUDED
 
-void exibirMatriz(float *ptr_matriz, int nlin, int ncol);
 float *alocaMatriz(int nlin, int ncol);
+void exibirMatriz(float *ptr_matriz, int nlin, int ncol);
 float *sigmoid(float *matriz, int nlin);
 float *produtoMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2);
 float *preencher(float *matriz, int nlin, int ncol);
@@ -13,39 +13,6 @@ float *d_sigmoid(float *matriz, int nlin);
 float *hadamard(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2);
 float *produtoEscalar(float *matriz, int nlin, int ncol, float escalar);
 float *transporMatriz(float *matriz, int nlin, int ncol);
-
-float *sigmoid(float *matriz, int nlin){
-
-    float *sig = alocaMatriz(nlin, 1);
-    float soma;
-
-    for(int i = 0; i < nlin; i++){
-        soma = (1/(1+exp(- *(matriz + i) )));
-        *(sig+i) = soma;
-        //printf("\nSigmoid:\t%f\n", *(sig+i));
-    }
-    return sig;
-}
-
-float *produtoMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2){
-
-    int i, j;
-    float *prod_mat, soma;
-
-    prod_mat = alocaMatriz(nlin_mat1, ncol_mat2);
-
-    if(ncol_mat1 == nlin_mat2){
-
-        for(i = 0; i < nlin_mat1; i++){
-            soma = 0.f;
-            for(j = 0; j < nlin_mat2; j++){
-                soma = soma + (*(mat1 + (i * ncol_mat1) + j) * *(mat2 + j));
-            }
-            *(prod_mat+i) = soma;
-        }
-    }
-    return prod_mat;
-}
 
 float *alocaMatriz(int nlin, int ncol){
 
@@ -68,6 +35,47 @@ float *alocaMatriz(int nlin, int ncol){
 
     return ponteiro;
 
+}
+
+float *sigmoid(float *matriz, int nlin){
+
+    float *sig = alocaMatriz(nlin, 1);
+    float soma;
+
+    for(int i = 0; i < nlin; i++){
+        soma = (1/(1+exp(- *(matriz + i) )));
+        *(sig+i) = soma;
+        //printf("\nSigmoid:\t%f\n", *(sig+i));
+    }
+    return sig;
+}
+
+float *produtoMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2){
+
+    float *prod_mat, soma;
+    int i, j, k;
+
+    prod_mat = alocaMatriz(nlin_mat1, ncol_mat2);
+
+    if(ncol_mat1 == nlin_mat2){
+
+        for(i = 0; i < nlin_mat1; i++){
+
+            for(j = 0; j < ncol_mat2; j++){
+                soma = 0;
+                for(k = 0; k < ncol_mat1; k++){
+
+                    soma = soma + (*(mat1+(i*ncol_mat1)+k) * (*(mat2+(k * ncol_mat2)+j)));
+                    //printf("\n\n ============= controle ================= \n");
+                    printf("\ni = %d | j = %d | k = %d | m1 = %d | m2 = %d | soma = %f | C = %d\n", i, j, k, ((i * ncol_mat1) + k), ((k * ncol_mat2) + j), soma, (i * ncol_mat2) + j);
+                }
+
+                *(prod_mat + (i * ncol_mat2) + j) = soma;
+            }
+        }
+
+    }
+    return prod_mat;
 }
 
 void exibirMatriz(float *ptr_matriz, int nlin, int ncol){
