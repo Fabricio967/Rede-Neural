@@ -3,7 +3,7 @@
     Aluno de Analise e Desenvolvimento de Sistemas
     Rede Neural Perceptron
     Data: 20/03/2020
-    Atualização: 05/04/2020
+    Atualização: 12/04/2020
 **/
 
 #include <stdio.h>
@@ -49,7 +49,7 @@ void treinar(){
     do{ //ser referente as amostras
 
         for(i = 0; i < numeroAmostras; i++){ //refrente as amostras
-            printf("i = %d\n", i);
+            printf("\n==============================Amostra %d: \n", i+1);
             for(j = 0; j < (numEntrada+1); j++){ //referente
                 if(j == numEntrada){
                     *(yDesejadoSaida) = amostras[i][j];
@@ -77,16 +77,16 @@ void treinar(){
                 //biasSaida = preencher(alocaMatriz(numNeuronioSaida, numNeuronioSaida), numNeuronioSaida, numNeuronioSaida);
                 zSaida = produtoMatriz(pesosSaida, numNeuronioSaida, numNeuronioOculta, yOculta, numNeuronioOculta, 1);
                 zSaida = somaMatrizes(zSaida, numNeuronioSaida, 1, biasSaida, numNeuronioSaida, numNeuronioSaida);
-                ySaida = sigmoid(zSaida, numNeuronioSaida);
-                exibirMatriz(ySaida, numNeuronioSaida, 1);
+                ySaida = sigmoid(zSaida, numNeuronioSaida); // = 0.5
+                //exibirMatriz(ySaida, numNeuronioSaida, 1);
 
                 //Verifica o erro na camada de saída
                 erroSaida = subtraiMatriz(yDesejadoSaida, numNeuronioSaida, 1, ySaida, numNeuronioSaida, 1);
-                //erroSaida = produtoMatriz(erroSaida, 1, 1, erroSaida, 1, 1);
+                //system("pause");
                 printf("\nerro = ");
                 exibirMatriz(erroSaida, 1, 1);
                 printf("\n-\n");
-                //system("pause");
+                system("pause");
 
                 if(*erroSaida > erroDesejado){
                     //BACKPROPAGATION
@@ -109,6 +109,7 @@ void treinar(){
 
                 }
             }
+            exibirMatriz(ySaida, numNeuronioSaida, 1);
         }
 
 
@@ -118,11 +119,11 @@ void treinar(){
     }while(numEpocas < epocas || *erroSaida > erroDesejado);
 
 
-    printf("\nMatriz de entrada:");
+    printf("\nMatriz de entrada: ");
     exibirMatriz(matrizDeEntrada, numEntrada, 1);
-    printf("\nMatriz esperada");
+    printf("\nMatriz esperada: ");
     exibirMatriz(yDesejadoSaida, numNeuronioSaida, 1);
-    printf("\nMatriz obtida:");
+    printf("\nMatriz obtida: ");
     exibirMatriz(ySaida, numNeuronioSaida, 1);
 
 
