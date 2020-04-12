@@ -124,7 +124,7 @@ float *subtraiMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int
             *(sub_mat+i) = ( *(mat1+i) - *(mat2+i) );
             //printf("\nveredito = %f \n", *(sub_mat+i));
             *(sub_mat+i) = (*(sub_mat+i) * *(sub_mat+i));
-            printf("\nveredito = %f \n", *(sub_mat+i));
+            //printf("\nveredito = %f \n", *(sub_mat+i));
         }
     }
     return sub_mat;
