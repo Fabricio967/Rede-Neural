@@ -19,7 +19,7 @@ const int numNeuronioSaida= 1;
 const float taxaDeAprendizado = 0.1;
 const float erroDesejado = 0.01;
 const int numeroAmostras = 4;
-const int epocas = 1000;
+const int epocas = 10;
 
 void treinar(){
 
@@ -40,11 +40,17 @@ void treinar(){
     matrizDeEntrada = alocaMatriz(numEntrada, 1);
     int numEpocas = 0;
 
-    do{
+    //
+    pesosOculta = preencher(alocaMatriz(numNeuronioOculta, numEntrada), numNeuronioOculta, numEntrada);
+    biasOculta = preencher(alocaMatriz(numNeuronioOculta, 1), numNeuronioOculta, 1);
+    pesosSaida = preencher(alocaMatriz(numNeuronioSaida, numNeuronioOculta), numNeuronioSaida, numNeuronioOculta);
+    biasSaida = preencher(alocaMatriz(numNeuronioSaida, numNeuronioSaida), numNeuronioSaida, numNeuronioSaida);
 
-        for(i = 0; i < numeroAmostras; i++){
+    do{ //ser referente as amostras
+
+        for(i = 0; i < numeroAmostras; i++){ //refrente as amostras
             printf("i = %d\n", i);
-            for(j = 0; j < (numEntrada+1); j++){
+            for(j = 0; j < (numEntrada+1); j++){ //referente
                 if(j == numEntrada){
                     *(yDesejadoSaida) = amostras[i][j];
                 }else{
@@ -60,15 +66,15 @@ void treinar(){
                 //FEEDFORWARD
 
                 //Entrada -> Camada Oculta
-                pesosOculta = preencher(alocaMatriz(numNeuronioOculta, numEntrada), numNeuronioOculta, numEntrada);
+                //pesosOculta = preencher(alocaMatriz(numNeuronioOculta, numEntrada), numNeuronioOculta, numEntrada);
                 zOculta = produtoMatriz(pesosOculta, numNeuronioOculta, numEntrada, matrizDeEntrada, numEntrada, 1);
-                biasOculta = preencher(alocaMatriz(numNeuronioOculta, 1), numNeuronioOculta, 1);
+                //biasOculta = preencher(alocaMatriz(numNeuronioOculta, 1), numNeuronioOculta, 1);
                 zOculta = somaMatrizes(zOculta, numNeuronioOculta, 1, biasOculta, numNeuronioOculta, 1);
                 yOculta = sigmoid(zOculta, numNeuronioOculta);
 
                 //Camada Oculta -> Camada de Saida
-                pesosSaida = preencher(alocaMatriz(numNeuronioSaida, numNeuronioOculta), numNeuronioSaida, numNeuronioOculta);
-                biasSaida = preencher(alocaMatriz(numNeuronioSaida, numNeuronioSaida), numNeuronioSaida, numNeuronioSaida);
+                //pesosSaida = preencher(alocaMatriz(numNeuronioSaida, numNeuronioOculta), numNeuronioSaida, numNeuronioOculta);
+                //biasSaida = preencher(alocaMatriz(numNeuronioSaida, numNeuronioSaida), numNeuronioSaida, numNeuronioSaida);
                 zSaida = produtoMatriz(pesosSaida, numNeuronioSaida, numNeuronioOculta, yOculta, numNeuronioOculta, 1);
                 zSaida = somaMatrizes(zSaida, numNeuronioSaida, 1, biasSaida, numNeuronioSaida, numNeuronioSaida);
                 ySaida = sigmoid(zSaida, numNeuronioSaida);
@@ -76,7 +82,10 @@ void treinar(){
 
                 //Verifica o erro na camada de saída
                 erroSaida = subtraiMatriz(yDesejadoSaida, numNeuronioSaida, 1, ySaida, numNeuronioSaida, 1);
+                //erroSaida = produtoMatriz(erroSaida, 1, 1, erroSaida, 1, 1);
+                printf("\nerro = ");
                 exibirMatriz(erroSaida, 1, 1);
+                printf("\n-\n");
                 //system("pause");
 
                 if(*erroSaida > erroDesejado){
