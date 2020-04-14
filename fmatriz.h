@@ -4,6 +4,7 @@
 float *alocaMatriz(int nlin, int ncol);
 void exibirMatriz(float *ptr_matriz, int nlin, int ncol);
 float *sigmoid(float *matriz, int nlin);
+float d_sigmoid(float *matriz, int nlin);
 float *produtoMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2);
 float *preencher(float *matriz, int nlin, int ncol);
 float *somaMatrizes(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2);
@@ -45,6 +46,19 @@ float *sigmoid(float *matriz, int nlin){
         //printf("\nSigmoid:\t%f\n", *(sig+i));
     }
     return sig;
+}
+
+float d_sigmoid(float *matriz, int nlin){
+
+    float *d_sig = alocaMatriz(nlin, 1);
+    //float soma;
+
+    for(int i = 0; i < nlin; i++){
+        *(d_sig) = *(matriz + i) * (1 - *(matriz + i) );
+        //printf("\nSigmoid:\t%f\n", *(sig+i));
+    }
+    return *d_sig;
+
 }
 
 float *produtoMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2){
