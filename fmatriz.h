@@ -136,9 +136,9 @@ float *subtraiMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int
     if(nlin_mat1 == nlin_mat2 && ncol_mat1 == ncol_mat2){
         for(int i = 0; i < (nlin_mat1*ncol_mat1); i++){
             *(sub_mat+i) = ( *(mat1+i) - *(mat2+i) );
-            printf("\nMatriz 1 = %f \n", *(mat1+i));
-            *(sub_mat+i) = (*(sub_mat+i) * *(sub_mat+i));
-            printf("\nsubMatriz = %f \n", *(sub_mat+i));
+            //printf("\nMatriz 1 = %f \n", *(mat1+i));
+            //*(sub_mat+i) = (*(sub_mat+i) * *(sub_mat+i));
+            //printf("\nsubMatriz = %f \n", *(sub_mat+i));
         }
     }
     return sub_mat;
