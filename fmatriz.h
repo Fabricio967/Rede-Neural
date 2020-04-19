@@ -4,13 +4,14 @@
 float *alocaMatriz(int nlin, int ncol);
 void exibirMatriz(float *ptr_matriz, int nlin, int ncol);
 float *sigmoid(float *matriz, int nlin);
-float d_sigmoid(float *matriz, int nlin);
+float *d_sigmoid(float *matriz, int nlin);
 float *produtoMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2);
 float *preencher(float *matriz, int nlin, int ncol);
 float *somaMatrizes(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2);
 float *subtraiMatriz(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2);
 float *produtoEscalar(float *matriz, int nlin, int ncol, float escalar);
 float *transporMatriz(float *matriz, int nlin, int ncol);
+float *hadamard(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2);
 
 float *alocaMatriz(int nlin, int ncol){
 
@@ -48,7 +49,7 @@ float *sigmoid(float *matriz, int nlin){
     return sig;
 }
 
-float d_sigmoid(float *matriz, int nlin){
+float *d_sigmoid(float *matriz, int nlin){
 
     float *d_sig = alocaMatriz(nlin, 1);
     //float soma;
@@ -57,7 +58,7 @@ float d_sigmoid(float *matriz, int nlin){
         *(d_sig) = *(matriz + i) * (1 - *(matriz + i) );
         //printf("\nSigmoid:\t%f\n", *(sig+i));
     }
-    return *d_sig;
+    return d_sig;
 
 }
 
@@ -104,8 +105,9 @@ void exibirMatriz(float *ptr_matriz, int nlin, int ncol){
 float *preencher(float *matriz, int nlin, int ncol){
 
     for(int i = 0; i < (nlin*ncol); i++){
-        //*(matriz+i) = rand()%10 - 5;
-        *(matriz+i) = 0;
+        *(matriz+i) = rand()%10;
+        //*(matriz+i) /= 10;
+        //*(matriz+i) = 0;
     }
 
     return matriz;
@@ -169,6 +171,21 @@ float *transporMatriz(float *matriz, int nlin, int ncol){
         }
     }
     return matrizT;
+}
+
+float *hadamard(float *mat1, int nlin_mat1, int ncol_mat1, float *mat2, int nlin_mat2, int ncol_mat2){
+
+    float *had_mat;
+
+    had_mat = alocaMatriz(nlin_mat1, ncol_mat2);
+
+    if(nlin_mat1 == nlin_mat2 && ncol_mat1 == ncol_mat2){
+
+        for(int i = 0; i < (nlin_mat1*ncol_mat1); i++){
+                *(had_mat+i) = (*(mat1 + i)  * *(mat2 + i));
+        }
+    }
+    return had_mat;
 }
 
 #endif // FMATRIZ_H_INCLUDED
