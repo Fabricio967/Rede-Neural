@@ -21,7 +21,7 @@
 #define randn() (((double)rand()/((double)RAND_MAX + 1)) * (MAX - MIN)) + MIN
 
 const float eta = 0.7;
-FILE *arqPesoOculta, *arqPesoSaida;
+FILE *arqPesoOculta, *arqPesoSaida, *arqAmostras;
 
 float desejado[NUMAMOSTRAS] = { 0, 1, 1, 0};
 float entrada[NUMENTRADAS][1];
@@ -31,6 +31,7 @@ float pesosSaida[NEUSAIDA][NEUOCULTA];
 float saida[NUMAMOSTRAS][NEUSAIDA];
 float erroOculta[NUMAMOSTRAS][NEUSAIDA];
 float gradienteOculta[NEUOCULTA][1];
+float amostras[NUMAMOSTRAS][NUMENTRADAS];
 
 float sigmoide(float z);
 float dsig(float z);
@@ -69,7 +70,20 @@ void treinar(){
 
     int i, j, k, numEpocas = 0;
     float soma = 0;
-    float amostras[4][2] = { {0, 0}, {0, 1}, {1, 0}, {1, 1} };
+
+    arqAmostras = fopen("amostrasXOR.txt", "r");
+    if(!arqAmostras){
+        printf("\nErro ao abrir arquivo de amostras.\n");
+        return 1;
+    }
+
+    for(i = 0; i < NUMAMOSTRAS; i++){
+        for(j = 0; j < NUMENTRADAS; j++){
+            fscanf(arqAmostras, "%f ", &amostras[i][j]);
+        }
+    }
+
+    //float amostras[4][2] = { {0, 0}, {0, 1}, {1, 0}, {1, 1} };
 
     preencherMatrizes();
 
@@ -166,7 +180,7 @@ void salvar(){
     int i, j;
 
     //Salvando os pesos da Oculta
-    arqPesoOculta = fopen("pesosOculta.txt", "r+");
+    arqPesoOculta = fopen("pesosOculta.txt", "w");
     if(!arqPesoOculta){
         printf("\nErro ao abrir arquivo.\n");
         return 1;
@@ -179,7 +193,7 @@ void salvar(){
         fprintf(arqPesoOculta, "\n");
     }
 
-    arqPesoSaida = fopen("pesosSaida.txt", "r+");
+    arqPesoSaida = fopen("pesosSaida.txt", "w");
     if(!arqPesoSaida){
         printf("\nErro ao abrir arquivo.\n");
         return 1;

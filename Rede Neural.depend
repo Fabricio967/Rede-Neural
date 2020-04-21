@@ -4,20 +4,17 @@
 	<stdlib.h>
 	<math.h>
 
-<<<<<<< HEAD
-1587481432 source:f:\programação\rede-neural\main.c
+1585101792 D
+
+1587491100 source:f:\programação\rede-neural\main.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
 	<math.h>
-=======
-1587482079 source:f:\programação\rede-neural\main.c
-	<stdio.h>
-	<stdlib.h>
-	<math.h>
-	<time.h>
-	"fmatriz.h"
+
+1587481432 
 
 1587476635 f:\programação\rede-neural\fmatriz.h
->>>>>>> agora-vai
+
+1587476635 ra-vai
 
