@@ -1,144 +1,143 @@
-/**
-    Autor: Fabrício Henrique da Silva
-    Aluno de Analise e Desenvolvimento de Sistemas
-    Rede Neural Perceptron
-    Data: 20/03/2020
-    Atualização: 24/03/2020
-
-**/
-
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
-void exibirMatriz(int nlin, int ncol, int *ptr_matriz);
-int *alocaMatriz(int num_entradas, int num_neuronios);
-float sigmoid(int *matriz, int nlin);
-float randomico(void);
-int *produtoMatriz(int *mat1, int lin_mat1, int col_mat1, int *mat2, int lin_mat2, int col_mat2);
+#define NUMENTRADAS 2
+#define NEUOCULTA 4
+#define NEUSAIDA 1
+#define NUMAMOSTRAS 4
+#define EPOCAS 10000
 
-float sigmoid(int *matriz, int nlin){
+const float eta = 0.7;
+const float erroMin = 0.1;
 
-    int i;
-    float soma = 0, sig;
+float desejado[NUMAMOSTRAS] = { 0, 1, 1, 0};
+float entrada[NUMENTRADAS][1];
+float pesosOculta[NEUOCULTA][NUMENTRADAS] = { {0.5, 0.7}, {0.75, 0.9} };
+float oculta[NUMAMOSTRAS][NEUOCULTA];
+float pesosSaida[NEUSAIDA][NEUOCULTA] = {0.45, 0.8};
+float saida[NUMAMOSTRAS][NEUSAIDA];
+float erroOculta[NUMAMOSTRAS][NEUSAIDA];
+float gradienteOculta[NEUOCULTA][1];
 
-    for(i = 0; i < nlin; i++){
-        sig = (1/(1+exp(- *(matriz + i) )));
-        soma = soma + sig;
-        printf("\nSig: %f", soma);
-    }
+float sigmoide(float z);
+float dsig(float z);
+float rnd();
+FILE *fp;
 
-    return soma;
+float sigmoide(float z){
+
+    return (1/(1+exp(-z)));
+
 }
 
-float randomico(void){
+float dsig(float z){
 
-    srand((unsigned int)time(0));
-
-    return ((float)(rand()/(float)RAND_MAX))*10;
-
+    return (z*(1-z));
 }
 
-int *produtoMatriz(int *mat1, int lin_mat1, int col_mat1, int *mat2, int lin_mat2, int col_mat2){
+void treinar(){
 
-    int *prod_mat, i, j, soma = 0;
+    int i, j, k, p, numEpocas = 0;
+    float soma = 0;
+    float amostras[4][2] = { {0, 0}, {0, 1}, {1, 0}, {1, 1} };
 
-    prod_mat = alocaMatriz(lin_mat1, col_mat2);
-
-    if(col_mat1 == lin_mat2){
-
-        for(i = 0; i < lin_mat1; i++){
-            soma = 0;
-            for(j = 0; j < lin_mat2; j++){
-                soma = soma + (*(mat1 + (i * col_mat1) + j) * *(mat2 + j));
+    for(numEpocas = 0; numEpocas < EPOCAS; numEpocas++){
+        p = 0;
+        for(j = 0; j < NUMAMOSTRAS; j++){   //indica a amostra atual
+            //printf("Amostra %d\n\n", j+1);
+            //FEEDFORWARD
+            // OCULTA
+            for(k = 0; k < NUMENTRADAS; k++){   // atribuindo as entradas
+                entrada[k][0] = amostras[j][k];
+                //printf("%f\n", entrada[k][0]);
             }
-            *(prod_mat+i) = soma;
+            //printf("%f\n", entrada[0][0]);
+            //printf("%f\n", entrada[1][0]);
+
+            for(k = 0; k < NEUOCULTA; k++){     // fazendo a multiplicação da entrada pelos pesos da oculta
+                soma = 0;
+                for(i = 0; i < NUMENTRADAS; i++){
+                    soma += pesosOculta[k][i] * entrada[i][0];
+                    //printf("\nPeso[%d][%d] = %f | entrada[%d][0] = %f\n", k, i, pesosOculta[k][i], i, entrada[i][0]);
+                }
+                oculta[k][0] = soma;
+                oculta[k][0] = sigmoide(oculta[k][0]);
+                //printf("oculta = %f\n", oculta[k][0]);
+                //system("pause");
+
+            }
+
+            // SAIDA
+            for(k = 0; k < NEUSAIDA; k++){     // fazendo a multiplicação da oculta pelos pesos da saida
+                soma = 0;
+                for(i = 0; i < NEUOCULTA; i++){
+                    soma += pesosSaida[k][i] * oculta[i][0];
+                    //printf("\pesosSaida[%d][%d] = %f | oculta[%d][0] = %f\n", k, i, pesosSaida[k][i], i, oculta[i][0]); //erro aqui [problema com a oculta]
+                    //getchar();
+                }
+                saida[j][0] = soma;
+                saida[j][0] = sigmoide(saida[j][0]);
+                //printf("saida = %f\n", saida[j][0]);
+            }
+            //system("pause");
+
+            erroOculta[j][0] = (desejado[j] - saida[j][0]) * dsig(saida[j][0]);  //calculando o erro
+            //printf("\nerro[%d][0] = %f | saida[%d][0] = %f | desejado[%d] = %f\n", j, erroOculta[j][0], j, saida[j][0], j, desejado[j]);
+            //getchar();
+
+
+            //BACKPROPAGATION
+
+            //SAIDA
+            for(k = 0; k < NEUOCULTA; k++){     //atualizando os pesos da saida
+                //printf("\npesosSaida[0][%d] = %f", k, pesosSaida[0][k]);
+                pesosSaida[0][k] += eta * erroOculta[j][0] * oculta[k][0];
+                //printf("\npesosSaida[0][%d] = %f | erroOculta[%d][0] = %f | oculta[%d][0] = %f", k, pesosSaida[0][k], j, erroOculta[j][0], j, oculta[k][0]);
+                //getchar();
+            }
+            //printf("\n--\n");
+            //OCULTA
+            for(k = 0; k < NEUOCULTA; k++){     //atualizano os pesos da oculta
+                gradienteOculta[k][0] = erroOculta[j][0] * pesosSaida[0][k] * dsig(oculta[k][0]);
+                //printf("\ngradienteOculta[%d][0] = %f | erroOculta[%d][0] = %f | pesosSaida[0][%d] = %f | dsigoculta[%d][0] = %f", k, gradienteOculta[k][0], j, erroOculta[j][0], k, pesosSaida[0][k], k, dsig(oculta[k][0]));
+                for(i = 0; i < NUMENTRADAS; i++){
+                    pesosOculta[k][i] += eta * gradienteOculta[k][0] * entrada[i][0];
+                    //printf("\nentrada[%d][0] = %f | pesosOculta[%d][%d] = %f", i, entrada[i][0], k, i, pesosOculta[k][i]);
+                    //getchar();
+                }
+            }
         }
-    }
-    return prod_mat;
-}
+        //printf("\n\n");
 
-int *alocaMatriz(int num_entradas, int num_neuronios){
+        if(numEpocas == EPOCAS-1){
+            for(i = 0; i < NUMAMOSTRAS; i++){
+                for(k = 0; k < NUMENTRADAS; k++){
+                    printf("\nEntrada[%d] = \t%f", k, amostras[i][k]);
+                }
+                printf("\n");
 
-    int i, *ponteiro, *q, nlin, ncol;
-    nlin = num_entradas;
-    ncol = num_neuronios;
+                printf("\nSaida Obtida = \t%f", saida[i][0]);
+                printf("\nSaida Desejado = \t%f", desejado[i]);
+                printf("\nErro = \t%f", erroOculta[i][0]);
+                printf("\n===================\n");
 
-    if(nlin < 1 || ncol < 1)
-        printf("\n2. ERRO: Parametro de tamanho invalido.\n");
-
-    for(i = 0; i < (nlin*ncol); i++)
-        ponteiro = (int)malloc(nlin*ncol*sizeof(int));
-
-    if(ponteiro == NULL)
-        printf("\n2.1. ERRO: Memoria Insuficiente!");
-
-    q = ponteiro;
-
-    for (i = 0; i < (nlin*ncol); i++, q++)
-		*q = 0;
-
-    return ponteiro;
-
-}
-
-void exibirMatriz(int nlin, int ncol, int *ptr_matriz){
-
-    int i, j;
-
-    for(i = 0; i < nlin; i++){
-        for(j = 0; j < ncol; j++){
-            printf("%d\t", *(ptr_matriz + (ncol * i) + j));
+            }
         }
-        printf("\n");
-    }
-}
+        //printf("\n===================\n");
+    }// fim do for epocas
+}// fim da funcao treinar
 
 int main(){
+    /*
+    printf("dsig = %f\n", dsig(0.1));
+    system("pause");*/
 
-    char url1[] = "matrizpesos.txt";
-    char url2[] = "matrizentrada.txt";
-    FILE *arq, *input;
-    float yk;
-    int i, entrada = 5, neuronio = 4;  //entrada = dado de entrada, neuronio = numero de neuronios na rede neural
-    int *weigth, *x_input, *u;
 
-    weigth = alocaMatriz(neuronio, entrada);
-    x_input = alocaMatriz(entrada, 1);
 
-    arq = fopen(url1, "r");
-    input = fopen(url2, "r");
+    treinar();
 
-    if(arq == NULL){
-        printf("\n1. ERRO ao abrir arquivos!\n");
-    }
-    else{
-        printf("\n1. Arquivos aberto com sucesso!\n\n");
-    }
 
-    for(i = 0; i < (entrada*neuronio); i++)
-        fscanf(arq, "%d", (weigth+i));
-
-    for(i = 0; i < entrada; i++)
-        fscanf(input, "%d", (x_input+i));
-
-    exibirMatriz(neuronio, entrada, weigth);
-    printf("\n");
-    exibirMatriz(entrada, 1, x_input);
-    printf("\n");
-
-    u = produtoMatriz(weigth, neuronio, entrada, x_input, entrada, 1);
-    exibirMatriz(neuronio, 1, u);
-
-    printf("\n");
-
-    yk = sigmoid(u, neuronio);
-    printf("\nSaida: %f\n", yk);
-
-    fclose(arq);
-    fclose(x_input);
-    free(weigth);
-    free(x_input);
-
-    return 0;
+    return 1;
 }
