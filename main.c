@@ -11,19 +11,19 @@
 #include <string.h>
 #include <math.h>
 
-#define NUMENTRADAS 2
+#define NUMENTRADAS 3
 #define NEUOCULTA 4
 #define NEUSAIDA 1
-#define NUMAMOSTRAS 4
+#define NUMAMOSTRAS 6
 #define EPOCAS 10000
 #define MIN -0.5
 #define MAX 0.5
 #define randn() (((double)rand()/((double)RAND_MAX + 1)) * (MAX - MIN)) + MIN
 
-const float eta = 0.7;
-FILE *arqPesoOculta, *arqPesoSaida;
+const float eta = 0.1;
+FILE *arqPesoOculta, *arqPesoSaida, *arqAmostras;
 
-float desejado[NUMAMOSTRAS] = { 0, 1, 1, 0};
+float desejado[NUMAMOSTRAS] = { 0, 0, 1, 0, 1, 1};
 float entrada[NUMENTRADAS][1];
 float pesosOculta[NEUOCULTA][NUMENTRADAS];
 float oculta[NUMAMOSTRAS][NEUOCULTA];
@@ -31,6 +31,7 @@ float pesosSaida[NEUSAIDA][NEUOCULTA];
 float saida[NUMAMOSTRAS][NEUSAIDA];
 float erroOculta[NUMAMOSTRAS][NEUSAIDA];
 float gradienteOculta[NEUOCULTA][1];
+float amostras[NUMAMOSTRAS][NUMENTRADAS];
 
 float sigmoide(float z);
 float dsig(float z);
@@ -69,7 +70,27 @@ void treinar(){
 
     int i, j, k, numEpocas = 0;
     float soma = 0;
-    float amostras[4][2] = { {0, 0}, {0, 1}, {1, 0}, {1, 1} };
+
+    //float amostras[4][2] = { {0, 0}, {0, 1}, {1, 0}, {1, 1} };
+
+
+    arqAmostras = fopen("amostras.txt", "r");
+    if(!arqAmostras){
+        printf("\nErro ao abrir arquivo de amostras.\n");
+        return 1;
+    }
+
+    for(i = 0; i < NUMAMOSTRAS; i++){
+        for(j = 0; j < NUMENTRADAS; j++){
+            fscanf(arqAmostras, "%f ", &amostras[i][j]);
+            printf("[%d][%d] = %f\t", i, j, amostras[i][j]);
+        }
+        printf("\n");
+    }
+    getchar();
+
+    //float amostras[4][2] = { {0, 0}, {0, 1}, {1, 0}, {1, 1} };
+
 
     preencherMatrizes();
 
@@ -83,8 +104,6 @@ void treinar(){
                 entrada[k][0] = amostras[j][k];
                 //printf("%f\n", entrada[k][0]);
             }
-            //printf("%f\n", entrada[0][0]);
-            //printf("%f\n", entrada[1][0]);
 
             for(k = 0; k < NEUOCULTA; k++){     // fazendo a multiplicação da entrada pelos pesos da oculta
                 soma = 0;
@@ -94,7 +113,7 @@ void treinar(){
                 }
                 oculta[k][0] = soma;
                 oculta[k][0] = sigmoide(oculta[k][0]);
-                //printf("oculta = %f\n", oculta[k][0]);
+                printf("oculta = %f\n", oculta[k][0]);
                 //system("pause");
 
             }
@@ -141,7 +160,7 @@ void treinar(){
         }
         //printf("\n\n");
 
-
+        getchar();
         if(numEpocas == EPOCAS-1){
             for(i = 0; i < NUMAMOSTRAS; i++){
                 for(k = 0; k < NUMENTRADAS; k++){

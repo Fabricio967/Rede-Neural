@@ -4,7 +4,17 @@
 	<stdlib.h>
 	<math.h>
 
-1587482617 source:f:\programação\rede-neural\main.c
+1585101792 ated upstream
+
+1587493429 source:f:\programação\rede-neural\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<math.h>
+
+1585101792 D
+
+1587492480 shed changes
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
