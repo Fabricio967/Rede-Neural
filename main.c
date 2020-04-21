@@ -12,7 +12,11 @@
 #include <math.h>
 
 #define NUMENTRADAS 2
+<<<<<<< HEAD
 #define NEUOCULTA 5
+=======
+#define NEUOCULTA 4
+>>>>>>> agora-vai
 #define NEUSAIDA 1
 #define NUMAMOSTRAS 4
 #define EPOCAS 10000

@@ -1,0 +1,12 @@
+# Dificuldades:
+
+- Demora até criar todas as funções de algebricas para lidar com as matrizes alocadas dinamicamente;
+
+- Demora para testar tudo;
+
+- Dificuldade na multiplicação matricial;
+
+- Dificuldade matematica em implementar o backpropagation;
+
+- Dificuldade no treinamento;
+
