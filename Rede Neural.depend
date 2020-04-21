@@ -4,12 +4,11 @@
 	<stdlib.h>
 	<math.h>
 
-1587482079 source:f:\programação\rede-neural\main.c
+1587482617 source:f:\programação\rede-neural\main.c
 	<stdio.h>
 	<stdlib.h>
+	<string.h>
 	<math.h>
-	<time.h>
-	"fmatriz.h"
 
 1587476635 f:\programação\rede-neural\fmatriz.h
 
