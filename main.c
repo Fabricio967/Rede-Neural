@@ -37,6 +37,7 @@ float sigmoide(float z);
 float dsig(float z);
 void preencherMatrizes();
 int salvarPesos();
+void previsao();
 
 void preencherMatrizes(){
 
@@ -150,7 +151,7 @@ void treinar(){
                 }
                 printf("\n\nSaida Obtida = \t%f", saida[i][0]);
                 printf("\nSaida Desejado = \t%f", desejado[i]);
-                printf("\nErro = \t%f", erroOculta[i][0]);
+                //printf("\nErro = \t%f", erroOculta[i][0]);
                 printf("\n===================\n");
             }
         }
@@ -193,10 +194,58 @@ int salvarPesos(){
     return 0;
 }
 
+void previsao(){
+
+    int i, j, k;
+    float soma;
+    FILE *arqPrevisao;
+
+    arqPrevisao = fopen("previsao.txt", "r");
+    if(!arqPrevisao){
+        printf("\nEro ao abrir arquivo de previsao.\n");
+        return 1;
+    }
+
+    for(i = 0; i < 1; i++){
+        for(j = 0; j < NUMENTRADAS; j++){
+            fscanf(arqPrevisao, "%f ", &entrada[i][j]);
+            printf("[%d][%d] = %f\t", i, j, entrada[i][j]);
+        }
+        printf("\n");
+    }
+
+    for(k = 0; k < NEUOCULTA; k++){     // Multiplicação de pesos da oculta pela entrada
+        soma = 0;
+        for(i = 0; i < NUMENTRADAS; i++){
+            soma += pesosOculta[k][i] * entrada[i][0];
+            //printf("\nPeso[%d][%d] = %f | entrada[%d][0] = %f\n", k, i, pesosOculta[k][i], i, entrada[i][0]);
+        }
+        oculta[k][0] = soma;
+        oculta[k][0] = sigmoide(oculta[k][0]);
+        //printf("oculta = %f\n", oculta[k][0]);
+    }
+
+    // SAIDA
+    for(k = 0; k < NEUSAIDA; k++){     // Multiplicação de pesos da saida pela oculta
+        soma = 0;
+        for(i = 0; i < NEUOCULTA; i++){
+            soma += pesosSaida[k][i] * oculta[i][0];
+            //printf("\pesosSaida[%d][%d] = %f | oculta[%d][0] = %f\n", k, i, pesosSaida[k][i], i, oculta[i][0]);
+        }
+        saida[k][0] = soma;
+        saida[k][0] = sigmoide(saida[k][0]);
+    }
+    printf("\nSaida Obtida = %f", saida[k][0]);
+    printf("\nSaida Correta = 0\n");
+
+}
+
 int main(){
 
     treinar();
     salvarPesos();
     printf("\nRede treinada com sucesso :)\n");
+    printf("\nProcesso de previsao: \n");
+    previsao();
     return 0;
 }
