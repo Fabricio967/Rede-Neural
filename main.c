@@ -1,22 +1,33 @@
+/**
+    Autor: Fabrício Henrique da Silva
+    Aluno de Analise e Desenvolvimento de Sistemas
+    Rede Neural Perceptron
+    Data: 20/03/2020
+    Atualização: 21/04/2020
+**/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
 #define NUMENTRADAS 2
-#define NEUOCULTA 4
+#define NEUOCULTA 5
 #define NEUSAIDA 1
 #define NUMAMOSTRAS 4
 #define EPOCAS 10000
+#define MIN -0.5
+#define MAX 0.5
+#define randn() (((double)rand()/((double)RAND_MAX + 1)) * (MAX - MIN)) + MIN
 
 const float eta = 0.7;
-const float erroMin = 0.1;
+FILE *arqPesoOculta, *arqPesoSaida;
 
 float desejado[NUMAMOSTRAS] = { 0, 1, 1, 0};
 float entrada[NUMENTRADAS][1];
-float pesosOculta[NEUOCULTA][NUMENTRADAS] = { {0.5, 0.7}, {0.75, 0.9} };
+float pesosOculta[NEUOCULTA][NUMENTRADAS];
 float oculta[NUMAMOSTRAS][NEUOCULTA];
-float pesosSaida[NEUSAIDA][NEUOCULTA] = {0.45, 0.8};
+float pesosSaida[NEUSAIDA][NEUOCULTA];
 float saida[NUMAMOSTRAS][NEUSAIDA];
 float erroOculta[NUMAMOSTRAS][NEUSAIDA];
 float gradienteOculta[NEUOCULTA][1];
@@ -24,7 +35,25 @@ float gradienteOculta[NEUOCULTA][1];
 float sigmoide(float z);
 float dsig(float z);
 float rnd();
-FILE *fp;
+void preencherMatrizes();
+
+void preencherMatrizes(){
+
+    int i, j;
+
+    for(i = 0; i < NEUOCULTA; i++){
+        for(j = 0; j < NUMENTRADAS; j++){
+            pesosOculta[i][j] = randn();
+        }
+    }
+
+    for(i = 0; i < NEUSAIDA; i++){
+        for(j = 0; j < NEUOCULTA; j++){
+            pesosSaida[i][j] = randn();
+        }
+    }
+}
+
 
 float sigmoide(float z){
 
@@ -39,14 +68,16 @@ float dsig(float z){
 
 void treinar(){
 
-    int i, j, k, p, numEpocas = 0;
+    int i, j, k, numEpocas = 0;
     float soma = 0;
     float amostras[4][2] = { {0, 0}, {0, 1}, {1, 0}, {1, 1} };
 
+    preencherMatrizes();
+
     for(numEpocas = 0; numEpocas < EPOCAS; numEpocas++){
-        p = 0;
         for(j = 0; j < NUMAMOSTRAS; j++){   //indica a amostra atual
             //printf("Amostra %d\n\n", j+1);
+
             //FEEDFORWARD
             // OCULTA
             for(k = 0; k < NUMENTRADAS; k++){   // atribuindo as entradas
@@ -111,6 +142,7 @@ void treinar(){
         }
         //printf("\n\n");
 
+
         if(numEpocas == EPOCAS-1){
             for(i = 0; i < NUMAMOSTRAS; i++){
                 for(k = 0; k < NUMENTRADAS; k++){
@@ -123,21 +155,52 @@ void treinar(){
                 printf("\nErro = \t%f", erroOculta[i][0]);
                 printf("\n===================\n");
 
+
             }
         }
         //printf("\n===================\n");
     }// fim do for epocas
 }// fim da funcao treinar
 
+void salvar(){
+
+    int i, j;
+
+    //Salvando os pesos da Oculta
+    arqPesoOculta = fopen("pesosOculta.txt", "r+");
+    if(!arqPesoOculta){
+        printf("\nErro ao abrir arquivo.\n");
+        return 1;
+    }
+
+    for(i = 0; i < NEUOCULTA; i++){
+        for(j = 0; j < NUMENTRADAS; j++){
+            fprintf(arqPesoOculta, "%f ", pesosOculta[i][j]);
+        }
+        fprintf(arqPesoOculta, "\n");
+    }
+
+    arqPesoSaida = fopen("pesosSaida.txt", "r+");
+    if(!arqPesoSaida){
+        printf("\nErro ao abrir arquivo.\n");
+        return 1;
+    }
+
+    for(i = 0; i < NEUSAIDA; i++){
+        for(j = 0; j < NEUOCULTA; j++){
+            fprintf(arqPesoSaida, "%f ", pesosSaida[i][j]);
+        }
+        fprintf(arqPesoSaida, "\n");
+    }
+    fclose(arqPesoOculta);
+    fclose(arqPesoSaida);
+
+}
+
 int main(){
-    /*
-    printf("dsig = %f\n", dsig(0.1));
-    system("pause");*/
-
-
 
     treinar();
-
+    salvar();
 
     return 1;
 }
