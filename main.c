@@ -113,7 +113,7 @@ void treinar(){
                 }
                 oculta[k][0] = soma;
                 oculta[k][0] = sigmoide(oculta[k][0]);
-                printf("oculta = %f\n", oculta[k][0]);
+                //printf("oculta = %f\n", oculta[k][0]);
                 //system("pause");
 
             }
@@ -160,7 +160,7 @@ void treinar(){
         }
         //printf("\n\n");
 
-        getchar();
+        //getchar();
         if(numEpocas == EPOCAS-1){
             for(i = 0; i < NUMAMOSTRAS; i++){
                 for(k = 0; k < NUMENTRADAS; k++){
