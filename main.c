@@ -3,196 +3,203 @@
     Aluno de Analise e Desenvolvimento de Sistemas
     Rede Neural Perceptron
     Data: 20/03/2020
-    Atualização: 18/04/2020
+    Atualização: 21/04/2020
 **/
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
-#include <time.h>
 
-#include "fmatriz.h"
+#define NUMENTRADAS 2
+#define NEUOCULTA 4
+#define NEUSAIDA 1
+#define NUMAMOSTRAS 4
+#define EPOCAS 10000
+#define MIN -0.5
+#define MAX 0.5
+#define randn() (((double)rand()/((double)RAND_MAX + 1)) * (MAX - MIN)) + MIN
 
-const int numEntrada = 2;
-const int numNeuronioOculta = 2;
-const int numNeuronioSaida= 1;
-const float taxaDeAprendizado = 0.1;
-const float erroDesejado = 0.1;
-const int numeroAmostras = 4;
-const long int epocas = 10000;
+const float eta = 0.7;
+FILE *arqPesoOculta, *arqPesoSaida;
 
-float rr(){
-    float f = (rand()%10);
-    f /= 10;
-    if(f != 0){
-        //printf("%f\n", f);
-        return f;
-    }else{
-        rr();
+float desejado[NUMAMOSTRAS] = { 0, 1, 1, 0};
+float entrada[NUMENTRADAS][1];
+float pesosOculta[NEUOCULTA][NUMENTRADAS];
+float oculta[NUMAMOSTRAS][NEUOCULTA];
+float pesosSaida[NEUSAIDA][NEUOCULTA];
+float saida[NUMAMOSTRAS][NEUSAIDA];
+float erroOculta[NUMAMOSTRAS][NEUSAIDA];
+float gradienteOculta[NEUOCULTA][1];
+
+float sigmoide(float z);
+float dsig(float z);
+float rnd();
+void preencherMatrizes();
+
+void preencherMatrizes(){
+
+    int i, j;
+
+    for(i = 0; i < NEUOCULTA; i++){
+        for(j = 0; j < NUMENTRADAS; j++){
+            pesosOculta[i][j] = randn();
+        }
     }
+
+    for(i = 0; i < NEUSAIDA; i++){
+        for(j = 0; j < NEUOCULTA; j++){
+            pesosSaida[i][j] = randn();
+        }
+    }
+}
+
+float sigmoide(float z){
+
+    return (1/(1+exp(-z)));
+
+}
+
+float dsig(float z){
+
+    return (z*(1-z));
 }
 
 void treinar(){
 
-    //float *yDesejadoSaida = alocaMatriz(numNeuronioSaida, 1);
-    float *matrizDeEntrada;
-    float *pesosOculta, *biasOculta, *yOculta;
-    float *pesosSaida, *biasSaida, *ySaida;
-    float *erroSaida, *pesosSaidaTransposta;
-    float *erroOculta, *entradaTransposta;
-    float *erroGlobal;
+    int i, j, k, numEpocas = 0;
+    float soma = 0;
+    float amostras[4][2] = { {0, 0}, {0, 1}, {1, 0}, {1, 1} };
+
+    preencherMatrizes();
+
+    for(numEpocas = 0; numEpocas < EPOCAS; numEpocas++){
+        for(j = 0; j < NUMAMOSTRAS; j++){   //indica a amostra atual
+            //printf("Amostra %d\n\n", j+1);
+
+            //FEEDFORWARD
+            // OCULTA
+            for(k = 0; k < NUMENTRADAS; k++){   // atribuindo as entradas
+                entrada[k][0] = amostras[j][k];
+                //printf("%f\n", entrada[k][0]);
+            }
+            //printf("%f\n", entrada[0][0]);
+            //printf("%f\n", entrada[1][0]);
+
+            for(k = 0; k < NEUOCULTA; k++){     // fazendo a multiplicação da entrada pelos pesos da oculta
+                soma = 0;
+                for(i = 0; i < NUMENTRADAS; i++){
+                    soma += pesosOculta[k][i] * entrada[i][0];
+                    //printf("\nPeso[%d][%d] = %f | entrada[%d][0] = %f\n", k, i, pesosOculta[k][i], i, entrada[i][0]);
+                }
+                oculta[k][0] = soma;
+                oculta[k][0] = sigmoide(oculta[k][0]);
+                //printf("oculta = %f\n", oculta[k][0]);
+                //system("pause");
+
+            }
+
+            // SAIDA
+            for(k = 0; k < NEUSAIDA; k++){     // fazendo a multiplicação da oculta pelos pesos da saida
+                soma = 0;
+                for(i = 0; i < NEUOCULTA; i++){
+                    soma += pesosSaida[k][i] * oculta[i][0];
+                    //printf("\pesosSaida[%d][%d] = %f | oculta[%d][0] = %f\n", k, i, pesosSaida[k][i], i, oculta[i][0]); //erro aqui [problema com a oculta]
+                    //getchar();
+                }
+                saida[j][0] = soma;
+                saida[j][0] = sigmoide(saida[j][0]);
+                //printf("saida = %f\n", saida[j][0]);
+            }
+            //system("pause");
+
+            erroOculta[j][0] = (desejado[j] - saida[j][0]) * dsig(saida[j][0]);  //calculando o erro
+            //printf("\nerro[%d][0] = %f | saida[%d][0] = %f | desejado[%d] = %f\n", j, erroOculta[j][0], j, saida[j][0], j, desejado[j]);
+            //getchar();
+
+
+            //BACKPROPAGATION
+
+            //SAIDA
+            for(k = 0; k < NEUOCULTA; k++){     //atualizando os pesos da saida
+                //printf("\npesosSaida[0][%d] = %f", k, pesosSaida[0][k]);
+                pesosSaida[0][k] += eta * erroOculta[j][0] * oculta[k][0];
+                //printf("\npesosSaida[0][%d] = %f | erroOculta[%d][0] = %f | oculta[%d][0] = %f", k, pesosSaida[0][k], j, erroOculta[j][0], j, oculta[k][0]);
+                //getchar();
+            }
+            //printf("\n--\n");
+            //OCULTA
+            for(k = 0; k < NEUOCULTA; k++){     //atualizano os pesos da oculta
+                gradienteOculta[k][0] = erroOculta[j][0] * pesosSaida[0][k] * dsig(oculta[k][0]);
+                //printf("\ngradienteOculta[%d][0] = %f | erroOculta[%d][0] = %f | pesosSaida[0][%d] = %f | dsigoculta[%d][0] = %f", k, gradienteOculta[k][0], j, erroOculta[j][0], k, pesosSaida[0][k], k, dsig(oculta[k][0]));
+                for(i = 0; i < NUMENTRADAS; i++){
+                    pesosOculta[k][i] += eta * gradienteOculta[k][0] * entrada[i][0];
+                    //printf("\nentrada[%d][0] = %f | pesosOculta[%d][%d] = %f", i, entrada[i][0], k, i, pesosOculta[k][i]);
+                    //getchar();
+                }
+            }
+        }
+        //printf("\n\n");
+
+
+        if(numEpocas == EPOCAS-1){
+            for(i = 0; i < NUMAMOSTRAS; i++){
+                for(k = 0; k < NUMENTRADAS; k++){
+                    printf("\nEntrada[%d] = \t%f", k, amostras[i][k]);
+                }
+                printf("\n");
+
+                printf("\nSaida Obtida = \t%f", saida[i][0]);
+                printf("\nSaida Desejado = \t%f", desejado[i]);
+                printf("\nErro = \t%f", erroOculta[i][0]);
+                printf("\n===================\n");
+
+
+            }
+        }
+        //printf("\n===================\n");
+    }// fim do for epocas
+}// fim da funcao treinar
+
+void salvar(){
 
     int i, j;
 
-    /*for(int i = 0; i < numNeuronioOculta; i++){
-        *(yDesejadoOculta+i) = 1;
-    }*/
-    float amostras[4][2] = { {0, 0}, {0, 1}, {1, 0}, {1, 1} };
-    float saidaDesejada[4] = { 0, 1, 1, 0};
+    //Salvando os pesos da Oculta
+    arqPesoOculta = fopen("pesosOculta.txt", "r+");
+    if(!arqPesoOculta){
+        printf("\nErro ao abrir arquivo.\n");
+        return 1;
+    }
 
-    matrizDeEntrada = alocaMatriz(numEntrada, 1);
-    int numEpocas = 0;
-
-    pesosOculta = alocaMatriz(numNeuronioOculta, numEntrada);
-    biasOculta = preencher(alocaMatriz(numNeuronioOculta, 1), numNeuronioOculta, 1);
-    pesosSaida = alocaMatriz(numNeuronioSaida, numNeuronioOculta);
-    biasSaida = preencher(alocaMatriz(numNeuronioSaida, numNeuronioSaida), numNeuronioSaida, numNeuronioSaida);
-
-    //erroSaida = alocaMatriz(numNeuronioOculta, numNeuronioSaida);
-    //erroOculta = alocaMatriz(numNeuronioOculta, numEntrada);
-
-    srand(time(NULL));
-
-    *(pesosOculta+0) = rr();
-    *(pesosOculta+1) = rr();
-    *(pesosOculta+2) = rr();
-    *(pesosOculta+3) = rr();
-
-    *(pesosSaida+0) = rr();
-    *(pesosSaida+1) = rr();
-
-    float erro = 1;
-
-    do{ //ser referente as amostras
-
-        for(i = 0; i < numeroAmostras; i++){ //refrente as amostras
-
-            //printf("\n==============================Amostra %d: \n", i+1);
-
-            for(j = 0; j < (numEntrada); j++){
-                *(matrizDeEntrada+j) = amostras[i][j];
-                //printf("\n======Amostra atual: \t%f", amostras[i][j]);
-            }
-
-            //FEEDFORWARD
-
-            //Entrada -> Camada Oculta
-
-            yOculta = produtoMatriz(pesosOculta, numNeuronioOculta, numEntrada, matrizDeEntrada, numEntrada, 1);
-            yOculta = somaMatrizes(yOculta, numNeuronioOculta, 1, biasOculta, numNeuronioOculta, 1);
-            yOculta = sigmoid(yOculta, numNeuronioOculta);
-
-            //Camada Oculta -> Camada de Saida
-
-            ySaida = produtoMatriz(pesosSaida, numNeuronioSaida, numNeuronioOculta, yOculta, numNeuronioOculta, 1);
-            ySaida = somaMatrizes(ySaida, numNeuronioSaida, 1, biasSaida, numNeuronioSaida, numNeuronioSaida);
-            ySaida = sigmoid(ySaida, numNeuronioSaida); // = 0.7773
-
-            //printf("\n\nY obtido: \t");
-            //exibirMatriz(ySaida, numNeuronioSaida, 1);
-
-            erro = ( saidaDesejada[i] - *(ySaida) );
-            erroGlobal = produtoEscalar(d_sigmoid(ySaida, numNeuronioSaida), numNeuronioSaida, numNeuronioSaida, erro);
-            //printf("\nErro Global = \t%f\n\n", erroGlobal);
-            //system("pause");
-
-            if( fabs(erro) > erroDesejado ){
-                //BACKPROPAGATION
-                //Processo de atualização dos pesos
-
-                //Saida -> Oculta
-
-                erroSaida = transporMatriz(yOculta, numNeuronioOculta, numNeuronioSaida);
-                erroSaida = produtoEscalar(erroSaida, numNeuronioSaida, numNeuronioOculta, *erroGlobal);
-                erroSaida = produtoEscalar(erroSaida, numNeuronioSaida, numNeuronioOculta, taxaDeAprendizado);
-                pesosSaida = somaMatrizes(pesosSaida, numNeuronioSaida, numNeuronioOculta, erroSaida, numNeuronioSaida, numNeuronioOculta);
-
-                biasSaida = somaMatrizes(biasSaida, numNeuronioSaida, numNeuronioSaida, erroGlobal, numNeuronioSaida, numNeuronioSaida);
-
-                //Oculta -> Entrada
-
-                pesosSaidaTransposta = transporMatriz(pesosSaida, numNeuronioSaida, numNeuronioOculta);
-                entradaTransposta = transporMatriz(matrizDeEntrada, numEntrada, 1);
-                erroOculta = produtoEscalar(pesosSaidaTransposta, numNeuronioOculta, numNeuronioSaida, erro);
-
-                erroOculta = hadamard(erroOculta, numNeuronioOculta, numNeuronioSaida, d_sigmoid(yOculta, numNeuronioOculta), numNeuronioOculta, numNeuronioSaida);
-                biasOculta = somaMatrizes(biasOculta, numNeuronioOculta, numNeuronioSaida, erroOculta, numNeuronioOculta, numNeuronioSaida);
-                erroOculta = produtoMatriz(erroOculta, numNeuronioOculta, numNeuronioSaida, entradaTransposta, 1, numEntrada);
-                erroOculta = produtoEscalar(erroOculta, numEntrada, numNeuronioOculta, taxaDeAprendizado);
-                pesosOculta = somaMatrizes(pesosOculta, numNeuronioOculta, numEntrada, erroOculta, numNeuronioOculta, numEntrada);
-
-
-            }
-
-        /*
-            printf("======Novos Pesos====== \nSaida:\n");
-            exibirMatriz(pesosSaida, numNeuronioSaida, numNeuronioOculta);
-            printf("\nOculta:\n");
-            exibirMatriz(pesosOculta, numNeuronioOculta, numEntrada);
-            printf("\n------------------------------\n");
-            */
-
-            if( /*fabs(erro) < erroDesejado */ numEpocas == (epocas - 1)){
-                printf("\nMatriz de entrada:\n");
-                exibirMatriz(matrizDeEntrada, numEntrada, 1);
-                printf("\nSaida Desejada = \t%f", saidaDesejada[i]);
-                printf("\nMatriz obtida = \t");
-                exibirMatriz(ySaida, numNeuronioSaida, 1);
-                printf("\n-----------------------------\n");
-            }
+    for(i = 0; i < NEUOCULTA; i++){
+        for(j = 0; j < NUMENTRADAS; j++){
+            fprintf(arqPesoOculta, "%f ", pesosOculta[i][j]);
         }
+        fprintf(arqPesoOculta, "\n");
+    }
 
+    arqPesoSaida = fopen("pesosSaida.txt", "r+");
+    if(!arqPesoSaida){
+        printf("\nErro ao abrir arquivo.\n");
+        return 1;
+    }
 
-        numEpocas = numEpocas + 1;
-        //printf("\nEpocas: %d", numEpocas);
-    }while(numEpocas < epocas);
-
-    /*
-    printf("\nMatriz de entrada: ");
-    exibirMatriz(matrizDeEntrada, numEntrada, 1);
-    printf("\nMatriz esperada: ");
-    exibirMatriz(yDesejadoSaida, numNeuronioSaida, 1);
-    printf("\nMatriz obtida: ");
-    exibirMatriz(ySaida, numNeuronioSaida, 1); */
-
-
-
-    printf("\n================================================\n");
-
-    free(pesosOculta);
-    free(biasOculta);
-    free(matrizDeEntrada);
-    free(yOculta);
-    free(yOculta);
-    free(pesosSaida);
-    free(biasSaida);
-    free(ySaida);
-    free(ySaida);
-    free(pesosSaidaTransposta);
-    free(entradaTransposta);
-    free(erroOculta);
-    //free(erroSaida);
+    for(i = 0; i < NEUSAIDA; i++){
+        for(j = 0; j < NEUOCULTA; j++){
+            fprintf(arqPesoSaida, "%f ", pesosSaida[i][j]);
+        }
+        fprintf(arqPesoSaida, "\n");
+    }
+    fclose(arqPesoOculta);
+    fclose(arqPesoSaida);
 
 }
 
 int main(){
 
-    srand(time(NULL));
-
     treinar();
-
-    printf("\nRede Treinada :) ");
+    salvar();
 
     return 1;
-
 }
